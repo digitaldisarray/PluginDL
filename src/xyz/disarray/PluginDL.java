@@ -23,7 +23,7 @@ public class PluginDL extends Thread {
 		// Get the number of pages
 		int pages = 1;
 		// Get <a> that has href that contains "?page="
-		for(Element e : firstPage.select("a[href*=?page=]")) {
+		for (Element e : firstPage.select("a[href*=?page=]")) {
 			// Find the first page # jump
 			if (Integer.parseInt(e.attr("href").split("=")[1]) - pages > 1) {
 				pages = Integer.parseInt(e.attr("href").split("=")[1]);
@@ -32,13 +32,14 @@ public class PluginDL extends Thread {
 				pages = Integer.parseInt(e.attr("href").split("=")[1]);
 			}
 		}
-		
+
 		System.out.println(pages + " page(s) detected");
-		
+
 		// DEBUG PURPOSES:
 		pages = 1;
-		
-		// Loop through each page getting all of the links & create plugin objects out each one
+
+		// Loop through each page getting all of the links & create plugin objects out
+		// each one
 		for (int i = 1; i <= pages; i++) {
 			Document doc = Util.get("https://dev.bukkit.org/bukkit-plugins?page=" + i);
 
@@ -56,10 +57,8 @@ public class PluginDL extends Thread {
 
 		// Start each plugin thread
 		plugins.get(0).start();
-		
-	}
 
-	
+	}
 
 	public void exit() {
 		running = false;

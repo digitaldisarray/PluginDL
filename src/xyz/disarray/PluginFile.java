@@ -15,6 +15,7 @@ public class PluginFile {
 	private String uploadDate;
 	private String gameVersions;
 	private String fileName;
+	private int id;
 
 	public PluginFile(String name, String fileSize, String dlPageLink, String uploadDate, String gameVersions,
 			String fileName) {
@@ -24,6 +25,7 @@ public class PluginFile {
 		this.uploadDate = uploadDate;
 		this.gameVersions = gameVersions;
 		this.fileName = fileName;
+		this.id = Integer.parseInt(dlPageLink.substring(dlPageLink.lastIndexOf("/") + 1));
 	}
 
 	public void download() {
@@ -32,7 +34,7 @@ public class PluginFile {
 		// Ex: https://dev.bukkit.org/projects/worldedit/files/831692
 		// Example
 		// https://edge.forgecdn.net/files/831/692/worldedit-bukkit-6.0-beta-01.jar
-		String dlNumbers = dlPageLink.substring(dlPageLink.lastIndexOf("/") + 1);
+		String dlNumbers = String.valueOf(id);
 		String directLink;
 		if (dlNumbers.length() == 6) {
 			directLink = "https://edge.forgecdn.net/files/" + dlNumbers.substring(0, 3) + "/" + dlNumbers.substring(3)
@@ -46,8 +48,8 @@ public class PluginFile {
 			InputStream in = new URL(directLink).openStream();
 
 			// Make sure path to file exists
-			Path target = Paths.get(
-					System.getProperty("user.dir") + "/downloads/" + dlPageLink.split("/")[4] + "/" + dlNumbers + "/" + fileName);
+			Path target = Paths.get(System.getProperty("user.dir") + "/downloads/" + dlPageLink.split("/")[4] + "/"
+					+ dlNumbers + "/" + fileName);
 			if (!Files.exists(target)) {
 				Files.createDirectories(target);
 			}
@@ -81,6 +83,10 @@ public class PluginFile {
 
 	public String getFileName() {
 		return fileName;
+	}
+
+	public int getID() {
+		return id;
 	}
 
 }
