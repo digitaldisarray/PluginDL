@@ -105,7 +105,7 @@ public class Plugin extends Thread {
 			// CATEGORIES
 			categories = "";
 			for (Element e : d.select("a[class='e-avatar32 tip']"))
-				categories += e.attr("title") + " ";
+				categories += e.attr("title") + ",";
 		}
 
 		// Get plugin files/versions etc
@@ -157,7 +157,7 @@ public class Plugin extends Thread {
 		plugin.put("categories", categories);
 		plugin.put("created", created);
 		plugin.put("updated", updated);
-		plugin.put("totalDownloads", Integer.parseInt(totalDownloads.replaceAll(",", "")));
+		plugin.put("downloads", Integer.parseInt(totalDownloads.replaceAll(",", "")));
 
 		done = true;
 	}
