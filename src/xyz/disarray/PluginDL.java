@@ -1,5 +1,6 @@
 package xyz.disarray;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -27,22 +28,26 @@ public class PluginDL extends Thread {
 	public void run() {
 
 		// Read the json and init plugin objects that we have previously downloaded
-		JSONParser jsonParser = new JSONParser();
-		try (FileReader reader = new FileReader(System.getProperty("user.dir") + "/downloads/plugins.json")) {
-			Object obj = jsonParser.parse(reader);
-			JSONArray pluginList = (JSONArray) obj;
+		System.out.println(System.getProperty("user.dir") + "/downloads/plugins.json");
+		if (new File(System.getProperty("user.dir") + "/downloads/plugins.json").exists()) {
+			JSONParser jsonParser = new JSONParser();
+			try (FileReader reader = new FileReader(System.getProperty("user.dir") + "/downloads/plugins.json")) {
+				Object obj = jsonParser.parse(reader);
+				JSONArray pluginList = (JSONArray) obj;
 
-			// Iterate over employee array
-			for(Object o : pluginList) {
-				plugins.add(parsePluginObj((JSONObject) o));
+				// Iterate over array
+				for (Object o : pluginList) {
+					System.out.println(o);
+					plugins.add(parsePluginObj((JSONObject) o));
+				}
+
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
 			}
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ParseException e) {
-			e.printStackTrace();
 		}
 
 		// Get the first page
@@ -92,28 +97,27 @@ public class PluginDL extends Thread {
 		// Check if all downloads are finished
 		boolean allFinished = false;
 		while (!allFinished) {
-			
+
 			// debug
-			if(plugins.get(0).isDone()) {
+			if (plugins.get(0).isDone()) {
 				allFinished = true;
 			}
-			
-			
-			//boolean foundUnfinished = false;
-			//for (Plugin p : plugins) {
-			//	if (!p.isDone()) {
-			//		foundUnfinished = true;
-			//		break;
-			//	}
-			//}
 
-			//if (!foundUnfinished) {
-			//	allFinished = true;
-			//}
+			// boolean foundUnfinished = false;
+			// for (Plugin p : plugins) {
+			// if (!p.isDone()) {
+			// foundUnfinished = true;
+			// break;
+			// }
+			// }
+
+			// if (!foundUnfinished) {
+			// allFinished = true;
+			// }
 		}
-		
+
 		System.out.println("All plugins completed");
-		
+
 		// All plugins are done downloading, save the json entries to a file
 		JSONArray pluginEntries = new JSONArray();
 		for (Plugin p : plugins) {
@@ -132,15 +136,16 @@ public class PluginDL extends Thread {
 	private Plugin parsePluginObj(JSONObject plugin) {
 		String url = (String) plugin.get("url");
 		String name = (String) plugin.get("name");
-		int id = (int) plugin.get(name);
+		int id = Integer.parseInt("" + plugin.get("id"));
+		System.out.println(id);
 		String created = (String) plugin.get("created");
 		String updated = (String) plugin.get("updated");
 		String totalDownloads = (String) plugin.get("totalDownloads");
 		String categories = (String) plugin.get("categories");
-		return new Plugin(url, name, id, created, updated, totalDownloads, categories); 
+		String iconFileName = (String) plugin.get("iconFileName");
+		return new Plugin(url, name, id, created, updated, totalDownloads, categories, iconFileName);
 	}
 
-	
 	public void exit() {
 		running = false;
 	}

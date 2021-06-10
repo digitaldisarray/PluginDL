@@ -4,6 +4,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,6 +30,7 @@ public class Plugin extends Thread {
 	private String updated;
 	private String totalDownloads;
 	private String categories;
+	private String iconFileName;
 
 	// Json object that represents the plugin as a whole
 	private JSONObject plugin;
@@ -40,7 +47,7 @@ public class Plugin extends Thread {
 	}
 
 	public Plugin(String url, String name, int id, String created, String updated, String totalDownloads,
-			String categories) {
+			String categories, String iconFileName) {
 		this.url = url;
 		this.name = name;
 		this.id = id;
@@ -48,6 +55,9 @@ public class Plugin extends Thread {
 		this.updated = updated;
 		this.totalDownloads = totalDownloads;
 		this.categories = categories;
+		this.iconFileName = iconFileName;
+		
+		downloaded = new ArrayList<>();
 
 		// Load plugin files that we already downloaded from json
 		JSONParser jsonParser = new JSONParser();
@@ -56,11 +66,10 @@ public class Plugin extends Thread {
 			Object obj = jsonParser.parse(reader);
 			JSONArray pluginList = (JSONArray) obj;
 
-			// Iterate over employee array
 			for (Object o : pluginList) {
+				System.out.println(o);
 				downloaded.add(parsePluginFileObj((JSONObject) o));
 			}
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -85,27 +94,51 @@ public class Plugin extends Thread {
 
 		Document d;
 
-		// If we already have the info, no need to get this info again
-		if (name == null) {
-			// Fetch data
-			d = Util.get(url);
-			// NAME
-			this.name = d.select("span[class=overflow-tip]").first().text();
+		// Even if we already have the info, we want to get latest updated date and
+		// download count
 
-			// INFO/PROPERTIES
-			List<String> properties = new ArrayList<>();
-			for (Element e : d.select("div[class=info-data]"))
-				properties.add(e.text());
+		// Fetch data
+		d = Util.get(url);
+		// NAME
+		this.name = d.select("span[class=overflow-tip]").first().text();
 
-			this.id = Integer.parseInt(properties.get(0));
-			this.created = properties.get(1);
-			this.updated = properties.get(2);
-			this.totalDownloads = properties.get(3);
+		// INFO/PROPERTIES
+		List<String> properties = new ArrayList<>();
+		for (Element e : d.select("div[class=info-data]"))
+			properties.add(e.text());
 
-			// CATEGORIES
-			categories = "";
-			for (Element e : d.select("a[class='e-avatar32 tip']"))
-				categories += e.attr("title") + ",";
+		this.id = Integer.parseInt(properties.get(0));
+		this.created = properties.get(1);
+		this.updated = properties.get(2);
+		this.totalDownloads = properties.get(3);
+
+		// CATEGORIES
+		categories = "";
+		for (Element e : d.select("a[class='e-avatar32 tip']"))
+			categories += e.attr("title") + ",";
+
+		// ICON FILE
+		if (iconFileName == null || iconFileName.equals("none")) {
+			String iconUrl = d.select("a[class='e-avatar64 lightbox']").first().attr("href");
+			if (iconUrl == null) {
+				iconFileName = "none";
+			}
+			// download the icon file
+			try {
+				InputStream in = new URL(iconUrl).openStream();
+
+				// Make sure path to file exists
+				Path target = Paths
+						.get(System.getProperty("user.dir") + "/downloads/" + url.split("/")[4] + "/" + iconUrl.split("/")[6]);
+				if (!Files.exists(target)) {
+					Files.createDirectories(target);
+				}
+
+				// Put the input stream into the file
+				Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 
 		// Get plugin files/versions etc
@@ -158,6 +191,7 @@ public class Plugin extends Thread {
 		plugin.put("created", created);
 		plugin.put("updated", updated);
 		plugin.put("downloads", Integer.parseInt(totalDownloads.replaceAll(",", "")));
+		plugin.put("iconFileName", iconFileName);
 
 		done = true;
 	}
@@ -170,10 +204,13 @@ public class Plugin extends Thread {
 
 			// If we already have this plugin downloaded, skip it
 			boolean alreadyDownloaded = false;
-			for(PluginFile p : downloaded) {
-				if(dlPageLink.equals(p.getDownloadPageLink()));
+			for (PluginFile p : downloaded) {
+				if (dlPageLink.equals(p.getDownloadPageLink())) {
+					alreadyDownloaded = true;
+					break;
+				}
 			}
-			if(alreadyDownloaded) {
+			if (alreadyDownloaded) {
 				System.out.println("Already downloaded " + name + "! Skipping...");
 				continue;
 			}
@@ -191,7 +228,7 @@ public class Plugin extends Thread {
 			String fileName = Util.get(dlPageLink).selectFirst("div[class^='info-data overflow-tip']").text();
 
 			PluginFile pf = new PluginFile(name, fileSize, dlPageLink, uploadDate, gameVersions, fileName);
-			//pf.download();
+			// pf.download();
 			downloaded.add(pf);
 		}
 		System.out.println("Completed downloading a page for plugin: " + name);
