@@ -37,8 +37,9 @@ public class PluginDL extends Thread {
 
 				// Iterate over array
 				for (Object o : pluginList) {
-					System.out.println(o);
-					plugins.add(parsePluginObj((JSONObject) o));
+					if (o != null) {
+						plugins.add(parsePluginObj((JSONObject) o));
+					}
 				}
 
 			} catch (FileNotFoundException e) {
@@ -78,17 +79,40 @@ public class PluginDL extends Thread {
 			Elements pluginElements = doc.getElementsByClass("project-list-item");
 			for (Element e : pluginElements) {
 				for (Element link : e.select("a[href]")) {
-					if (link.attr("href").startsWith("https://dev.bukkit.org/projects/")) {
-						plugins.add(new Plugin(link.attr("href")));
-						System.out.println("Added new plugin");
-						break;
+					// Make sure link is correct (more than one <a> with href in the
+					// project-list-item)
+					if (!link.attr("href").startsWith("https://dev.bukkit.org/projects/")) {
+						continue;
 					}
+
+					// Check if the plugin is already present
+					boolean present = false;
+					for (Plugin p : plugins) {
+						if (link.attr("href").equals(p.getPluginURL())) {
+							present = true;
+							break;
+						}
+					}
+					if (present) {
+						System.out.println("Already added " + link.attr("href") + "! Skipping...");
+						continue;
+					}
+
+					plugins.add(new Plugin(link.attr("href")));
+					System.out.println("Added: " + link.attr("href"));
+					break;
+
 				}
 			}
 		}
 
 		// Start each plugin thread
+		System.out.println(plugins.get(0).getPluginURL());
+		System.out.println(plugins.get(1).getPluginURL());
+		System.out.println(plugins.get(2).getPluginURL());
 		plugins.get(0).start();
+		plugins.get(1).start();
+		plugins.get(2).start();
 
 		/*
 		 * for(Plugin p : plugins) { p.start(); }
@@ -99,7 +123,7 @@ public class PluginDL extends Thread {
 		while (!allFinished) {
 
 			// debug
-			if (plugins.get(0).isDone()) {
+			if (plugins.get(0).isDone() && plugins.get(1).isDone() && plugins.get(2).isDone()) {
 				allFinished = true;
 			}
 

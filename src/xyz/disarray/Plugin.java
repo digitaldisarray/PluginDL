@@ -67,7 +67,6 @@ public class Plugin extends Thread {
 			JSONArray pluginList = (JSONArray) obj;
 
 			for (Object o : pluginList) {
-				System.out.println(o);
 				downloaded.add(parsePluginFileObj((JSONObject) o));
 			}
 		} catch (FileNotFoundException e) {
@@ -228,7 +227,7 @@ public class Plugin extends Thread {
 			String fileName = Util.get(dlPageLink).selectFirst("div[class^='info-data overflow-tip']").text();
 
 			PluginFile pf = new PluginFile(name, fileSize, dlPageLink, uploadDate, gameVersions, fileName);
-			// pf.download();
+			pf.download();
 			downloaded.add(pf);
 		}
 		System.out.println("Completed downloading a page for plugin: " + name);
@@ -240,6 +239,10 @@ public class Plugin extends Thread {
 
 	public JSONObject toJson() {
 		return plugin;
+	}
+	
+	public String getPluginURL() {
+		return url;
 	}
 
 }
