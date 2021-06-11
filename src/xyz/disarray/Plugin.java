@@ -31,6 +31,7 @@ public class Plugin extends Thread {
 	private String totalDownloads;
 	private String categories;
 	private String iconFileName;
+	private String description;
 
 	// Json object that represents the plugin as a whole
 	private JSONObject plugin;
@@ -41,13 +42,14 @@ public class Plugin extends Thread {
 	// Is the plugin done downloading all the releases
 	private boolean done = false;
 
-	public Plugin(String url) {
+	public Plugin(String url, String description) {
 		this.url = url;
+		this.description = description;
 		downloaded = new ArrayList<>();
 	}
 
 	public Plugin(String url, String name, int id, String created, String updated, String totalDownloads,
-			String categories, String iconFileName) {
+			String categories, String iconFileName, String description) {
 		this.url = url;
 		this.name = name;
 		this.id = id;
@@ -56,6 +58,7 @@ public class Plugin extends Thread {
 		this.totalDownloads = totalDownloads;
 		this.categories = categories;
 		this.iconFileName = iconFileName;
+		this.description = description;
 		
 		downloaded = new ArrayList<>();
 
@@ -117,10 +120,12 @@ public class Plugin extends Thread {
 			categories += e.attr("title") + ",";
 
 		// ICON FILE
-		if (iconFileName == null || iconFileName.equals("none")) {
+		if (iconFileName == null || iconFileName.equals("none") || iconFileName.equals("null")) {
 			String iconUrl = d.select("a[class='e-avatar64 lightbox']").first().attr("href");
 			if (iconUrl == null) {
 				iconFileName = "none";
+			} else {
+				iconFileName = iconUrl.split("/")[6];
 			}
 			// download the icon file
 			try {
@@ -191,7 +196,8 @@ public class Plugin extends Thread {
 		plugin.put("updated", updated);
 		plugin.put("downloads", Integer.parseInt(totalDownloads.replaceAll(",", "")));
 		plugin.put("iconFileName", iconFileName);
-
+		plugin.put("description", description);
+		
 		done = true;
 	}
 

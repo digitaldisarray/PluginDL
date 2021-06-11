@@ -98,7 +98,7 @@ public class PluginDL extends Thread {
 						continue;
 					}
 
-					plugins.add(new Plugin(link.attr("href")));
+					plugins.add(new Plugin(link.attr("href"), e.selectFirst("div[class=description]").selectFirst("p").text()));
 					System.out.println("Added: " + link.attr("href"));
 					break;
 
@@ -167,7 +167,8 @@ public class PluginDL extends Thread {
 		String totalDownloads = (String) plugin.get("totalDownloads");
 		String categories = (String) plugin.get("categories");
 		String iconFileName = (String) plugin.get("iconFileName");
-		return new Plugin(url, name, id, created, updated, totalDownloads, categories, iconFileName);
+		String description = (String) plugin.get("description");
+		return new Plugin(url, name, id, created, updated, totalDownloads, categories, iconFileName, description);
 	}
 
 	public void exit() {
