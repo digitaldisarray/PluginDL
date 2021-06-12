@@ -113,6 +113,7 @@ public class PluginDL extends Thread {
 		plugins.get(0).start();
 		plugins.get(1).start();
 		plugins.get(2).start();
+		plugins.get(3).start();
 
 		/*
 		 * for(Plugin p : plugins) { p.start(); }
@@ -123,7 +124,7 @@ public class PluginDL extends Thread {
 		while (!allFinished) {
 
 			// debug
-			if (plugins.get(0).isDone() && plugins.get(1).isDone() && plugins.get(2).isDone()) {
+			if (plugins.get(0).isDone() && plugins.get(1).isDone() && plugins.get(2).isDone() && plugins.get(3).isDone()) {
 				allFinished = true;
 			}
 

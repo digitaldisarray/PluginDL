@@ -220,9 +220,9 @@ public class Plugin extends Thread {
 				continue;
 			}
 
-			String fileSize = entry.select("td[class=project-file-size]").first().text();
-			String uploadDate = entry.select("abbr").first().text();
-			String gameVersions = entry.select("span[class=version-label]").first().text() + "";
+			String fileSize = entry.selectFirst("td[class=project-file-size]").text();
+			String uploadDate = entry.selectFirst("abbr").text();
+			String gameVersions = entry.selectFirst("span[class=version-label]").text() + "";
 
 			// Is there more than one game version supported
 			Element additionalVersions = entry.selectFirst("span[class='additional-versions tip']");
