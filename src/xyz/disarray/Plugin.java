@@ -59,7 +59,7 @@ public class Plugin extends Thread {
 		this.categories = categories;
 		this.iconFileName = iconFileName;
 		this.description = description;
-		
+
 		downloaded = new ArrayList<>();
 
 		// Load plugin files that we already downloaded from json
@@ -132,8 +132,8 @@ public class Plugin extends Thread {
 				InputStream in = new URL(iconUrl).openStream();
 
 				// Make sure path to file exists
-				Path target = Paths
-						.get(System.getProperty("user.dir") + "/downloads/" + url.split("/")[4] + "/" + iconUrl.split("/")[6]);
+				Path target = Paths.get(System.getProperty("user.dir") + "/downloads/" + url.split("/")[4] + "/"
+						+ iconUrl.split("/")[6]);
 				if (!Files.exists(target)) {
 					Files.createDirectories(target);
 				}
@@ -143,6 +143,16 @@ public class Plugin extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+		}
+
+		// DOWNLOAD THE README
+		String readme = d.selectFirst("div[class=project-description]").html();
+		try (FileWriter file = new FileWriter(
+				System.getProperty("user.dir") + "/downloads/" + url.split("/")[4] + "/readme.html")) {
+			file.write(readme);
+			file.flush();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 
 		// Get plugin files/versions etc
@@ -197,7 +207,7 @@ public class Plugin extends Thread {
 		plugin.put("downloads", Integer.parseInt(totalDownloads.replaceAll(",", "")));
 		plugin.put("iconFileName", iconFileName);
 		plugin.put("description", description);
-		
+
 		done = true;
 	}
 
@@ -246,7 +256,7 @@ public class Plugin extends Thread {
 	public JSONObject toJson() {
 		return plugin;
 	}
-	
+
 	public String getPluginURL() {
 		return url;
 	}

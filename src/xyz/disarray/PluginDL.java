@@ -17,7 +17,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class PluginDL extends Thread {
-
+	
+	// TODO: If plugin is already present, stop checking pages in downloads if the first plugin on the page is already downloaded?
+	
 	private boolean running = true;
 	List<Plugin> plugins = new ArrayList<>();
 
