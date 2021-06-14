@@ -237,7 +237,10 @@ public class Plugin extends Thread {
 			// Is there more than one game version supported
 			Element additionalVersions = entry.selectFirst("span[class='additional-versions tip']");
 			if (additionalVersions != null) {
-				gameVersions += " " + additionalVersions.attr("title").substring(5).replaceAll("</div><div>", " ")
+				// To avoid repeating the 1st version, string must be cleared
+				gameVersions = "";
+				
+				gameVersions += " " + additionalVersions.attr("title").substring(5).replaceAll("</div><div>", ", ")
 						.replaceAll("</div>", "");
 			}
 			String fileName = Util.get(dlPageLink).selectFirst("div[class^='info-data overflow-tip']").text();
